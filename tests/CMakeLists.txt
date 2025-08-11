@@ -2,4 +2,4 @@
 find_package(GTest REQUIRED)
 
 add_subdirectory(unit)
-# add_subdirectory(integration) #TODO: enable once ready
+add_subdirectory(integration)
