@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <chrono>
 
 namespace tcp_echo::net
 {
@@ -24,6 +25,12 @@ namespace tcp_echo::net
       if (fd == m_maxfd) RecomputeMax();
     }
 
+    void SetTick(std::function<void()> tickCb, int intervalMs) override
+    {
+      m_tickCb = std::move(tickCb);
+      m_intervalMs = intervalMs > 0 ? intervalMs : 0;
+    }
+
     void Run() override
     {
       m_running = true;
@@ -38,17 +45,24 @@ namespace tcp_echo::net
           if (fd > localMaxfd) localMaxfd = fd;
         }
 
-        if (localMaxfd < 0)
+        timeval tv{};
+        timeval* ptv = nullptr;
+        if (m_intervalMs > 0)
         {
-          //idle
-          ::usleep(1000 * 10);
-          continue;
+          tv.tv_sec  = m_intervalMs / 1000;
+          tv.tv_usec = (m_intervalMs % 1000) * 1000;
+          ptv = &tv;
         }
 
-        int rc = ::select(localMaxfd + 1, &rfds, nullptr, nullptr, nullptr);
+        int rc = ::select(localMaxfd + 1, &rfds, nullptr, nullptr, ptv);
         if (rc < 0)
         {
           if (m_running) LOG_WARN("reactor", "select failed; continuing");
+          continue;
+        }
+        else if (rc == 0)
+        {
+          if (m_tickCb != nullptr) m_tickCb();
           continue;
         }
 
@@ -84,6 +98,8 @@ namespace tcp_echo::net
     std::unordered_map<int, IoCallback> m_callbacks;
     int m_maxfd{-1};
     bool m_running{false};
+    std::function<void()> m_tickCb{};
+    int m_intervalMs{0};
   };
 
   // factory function for select reactor

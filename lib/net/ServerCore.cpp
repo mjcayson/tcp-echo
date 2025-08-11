@@ -12,6 +12,17 @@ namespace tcp_echo::net
     : m_cfg(cfg), m_acceptor(cfg.host, cfg.port)
   {
     m_reactor.reset(MakeSelectReactor());
+    m_reactor->SetTick([this]()
+    {
+      if (m_cfg.idleTimeoutMs > 0)
+      {
+        m_mgr.ForEach([this](int /*fd*/, Connection& conn)
+        {
+          conn.OnTick(m_cfg.idleTimeoutMs);
+          return true; // continue iteration
+        });
+      }
+    }, 1000);
   }
 
   void ServerCore::Run()
@@ -32,8 +43,8 @@ namespace tcp_echo::net
       {
         Socket sock = m_acceptor.AcceptOne(&ip, &port);
         int cfd = sock.fd();
-        LOG_INFO("server", "accepted " + ip + ":" + std::to_string(port));
-        m_mgr.Add(cfd, Connection(std::move(sock)));
+        LOG_INFO("server", "accepted " + ip + ":" + std::to_string(port) + " fd=" + std::to_string(cfd));
+        m_mgr.Add(cfd, Connection(std::move(sock), m_cfg.maxFrame, ip, port));
 
         // Register read handler for this connection
         m_reactor->AddRead(cfd, [this, cfd](int /*fd*/)

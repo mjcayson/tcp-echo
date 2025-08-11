@@ -4,7 +4,7 @@ file(GLOB_RECURSE UNIT_TESTS_SRC
 
 #@TODO: Use the GLOB list later once all tests are ready 
 add_executable(unit_tests
-#   test_proto_codec.cpp
+  test_ProtoCodec.cpp
 #   test_messages.cpp
   test_Cipher.cpp
   test_ByteOrder.cpp

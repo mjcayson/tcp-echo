@@ -10,7 +10,7 @@ namespace tcp_echo::net
   class ConnectionManager
   {
   public:
-    void Add(int fd, Connection&& c) { m_conns.emplace(fd, std::move(c)); }
+    void Add(int fd, Connection&& conn) { m_conns.emplace(fd, std::move(conn)); }
     void Remove(int fd) { m_conns.erase(fd); }
     bool Empty() const { return m_conns.empty(); }
 
@@ -18,6 +18,15 @@ namespace tcp_echo::net
     {
       auto it = m_conns.find(fd);
       return (it == m_conns.end()) ? nullptr : &it->second;
+    }
+
+    template <typename Func>
+    void ForEach(Func&& func)
+    {
+      for (auto& [fd, conn] : m_conns)
+      {
+        if (func(fd, conn) == false) break; // stop iteration if func returns false
+      }
     }
 
   private:

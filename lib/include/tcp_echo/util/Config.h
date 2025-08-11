@@ -14,6 +14,8 @@ namespace tcp_echo
     std::string reactor = "select";   // "select" | "epoll"
     int         workers = 1;          // not used yet, for future thread pool
     log::Level  logLevel = log::Level::info;
+    std::size_t maxFrame = 8192;      //limit the message size to 8kB
+    int         idleTimeoutMs = 30000;// 30 seconds idle connection close (0 = disabled)
   };
 
   struct ClientConfig

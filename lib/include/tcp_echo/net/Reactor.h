@@ -15,5 +15,6 @@ namespace tcp_echo::net
     virtual void Del(Fd fd) = 0;
     virtual void Run() = 0;
     virtual void Stop() = 0;
+    virtual void SetTick(std::function<void()> tickCb, int intervalMs) = 0;
   };
 } // namespace tcp_echo::net

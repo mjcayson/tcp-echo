@@ -1,6 +1,8 @@
 #include "tcp_echo/proto/FrameCodec.h"
 #include "tcp_echo/util/ByteOrder.hpp"
 
+#include<stdexcept>
+
 namespace tcp_echo::proto
 {
   std::vector<uint8_t> MakeFrame(MsgType type, uint8_t seq, const std::vector<uint8_t>& body)
@@ -14,12 +16,14 @@ namespace tcp_echo::proto
     return out;
   }
 
-  std::vector<uint8_t> TryExtractFrame(std::vector<uint8_t>& inbuf)
+  std::vector<uint8_t> TryExtractFrame(std::vector<uint8_t>& inbuf, std::size_t maxFrame)
   {
     if (inbuf.size() < HEADER_SIZE) return {};
 
     const uint16_t size = byte_order::load_be16(inbuf.data());
-    if (size == 0 || size > inbuf.size()) return {};
+    if (size == 0) throw std::runtime_error("invalid frame: size=0");
+    if (size > maxFrame) throw std::runtime_error("invalid frame: size exceeds maxFrame");
+    if (size > inbuf.size()) return {}; // need more bytes
     
     std::vector<uint8_t> frame(inbuf.begin(), inbuf.begin() + size);
     inbuf.erase(inbuf.begin(), inbuf.begin() + size);

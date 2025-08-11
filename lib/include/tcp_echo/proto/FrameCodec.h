@@ -9,6 +9,6 @@ namespace tcp_echo::proto
     std::vector<uint8_t> MakeFrame(MsgType type, uint8_t seq, const std::vector<uint8_t>& body);
 
     // Extract full frame from a growing buffer if available.
-    // Returns empty vector if not enough data yet.
-    std::vector<uint8_t> TryExtractFrame(std::vector<uint8_t>& inbuf);
+    // Returns empty vector if there is not enough data yet.
+    std::vector<uint8_t> TryExtractFrame(std::vector<uint8_t>& inbuf, std::size_t maxFrame);
 } // namespace tcp_echo::proto

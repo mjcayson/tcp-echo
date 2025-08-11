@@ -41,7 +41,9 @@ namespace
       "  --port <num>         (default 5000)\n"
       "  --reactor <select|epoll>\n"
       "  --workers <n>\n"
-      "  --log-level <trace|debug|info|warn|error>\n";
+      "  --log-level <trace|debug|info|warn|error>\n"
+      "  --max-frame <bytes>   (default 8192)\n"
+      "  --idle-ms <ms>        close idle connections after N ms (0=off)\n";
     
     std::exit(0);
   }
@@ -71,6 +73,10 @@ namespace tcp_echo
     if (const char* reactor = std::getenv("ECHO_REACTOR")) cfg.reactor = reactor;
     if (const char* workers = std::getenv("ECHO_WORKERS")) cfg.workers = to_int(workers, cfg.workers);
     if (const char* lvl = std::getenv("ECHO_LOG_LEVEL")) cfg.logLevel = ParseLevel(lvl);
+    if (const char* maxFrame = std::getenv("ECHO_MAX_FRAME")) cfg.maxFrame
+        = static_cast<std::size_t>(to_int(maxFrame, static_cast<int>(cfg.maxFrame)));
+    if (const char* timeoutMs = std::getenv("ECHO_IDLE_MS"))  cfg.idleTimeoutMs = to_int(timeoutMs, cfg.idleTimeoutMs);
+
 
     // CLI overrides
     for (int counter = 1; counter < argc; ++counter)
@@ -85,11 +91,14 @@ namespace tcp_echo
         }
         return argv[++counter];
       };
-      if (arg == "--host")      cfg.host = next("--host");
+      if (arg == "--host") cfg.host = next("--host");
       else if (arg == "--port") cfg.port = to_u16(next("--port"), cfg.port);
       else if (arg == "--reactor") cfg.reactor = next("--reactor");
       else if (arg == "--workers") cfg.workers = to_int(next("--workers"), cfg.workers);
       else if (arg == "--log-level") cfg.logLevel = ParseLevel(next("--log-level"));
+      else if (arg == "--max-frame") cfg.maxFrame = static_cast<std::size_t>(to_int(next("--max-frame"),
+                                                                                    static_cast<int>(cfg.maxFrame)));
+      else if (arg == "--idle-ms") cfg.idleTimeoutMs = to_int(next("--idle-ms"), cfg.idleTimeoutMs);
       else if (arg == "--help" || arg == "-h") PrintServerHelpThenExit();
     }
     return cfg;
