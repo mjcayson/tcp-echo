@@ -1,0 +1,36 @@
+networks:
+  appnet: {}
+
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: builder
+    image: tcp-echo:builder
+    command: ["bash", "-lc", "ctest --help"]
+    networks: [appnet]
+
+  runtime:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: tcp-echo:runtime
+    command: ["/app/server", "--help"]
+    networks: [appnet]
+
+  server:
+    image: tcp-echo:runtime
+    command: ["/app/server", "--host", "0.0.0.0", "--port", "5000", "--reactor", "select", "--log-level", "info"]
+    environment:
+      - ECHO_LOG_LEVEL=info
+    ports:
+      - "5000:5000"
+    stop_signal: SIGTERM
+    networks: [appnet]
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 5000 || exit 1"]
+      interval: 2s
+      timeout: 1s
+      retries: 15
