@@ -1,13 +1,18 @@
-# TCP Echo Server & Client (C++17)
+# TCP Echo Server & Client
 
 A modular, RAII-safe TCP echo server and client implemented in C++17,  
-built with CMake and Docker for full OS-independent reproducibility.
+built with CMake, and packaged with Docker
 
 The project demonstrates:
-- Clear separation of **core library** (protocol, networking, utilities) and **apps** (server, client).
-- Proper framing and message (de)serialization.
-- XOR stream cipher per provided spec.
-- Multiplexed I/O with a select-based Reactor (epoll possible).
+- Client Handling
+  - Proper frame detection
+  - Concurrent client support and IO socket multiplexing using select-based reactor design
+- Message serialization/deserialization
+- Message Handling
+  - Login Request
+  - Echo Request
+- Message Encryption/Decryption
+- Modular architecture for future scalability
 - Unit tests with GoogleTest.
 - Integration tests verifying end-to-end flow.
 - Portable architecture using Docker
@@ -31,10 +36,8 @@ tcp-echo
 - Docker Compose plugin 2.0+
 
 #### Install Docker on Ubuntu 22.04/24.04
+Skip if you already have it installed. This section provides a quick and convenient setup guide for Docker in Ubuntu. For other OS, please refer to the official Docker guide: https://docs.docker.com/get-started/get-docker/
 ```bash
-# Remove any old packages
-sudo apt remove docker docker-engine docker.io containerd runc
-
 # Install prerequisites
 sudo apt update
 sudo apt install -y ca-certificates curl gnupg lsb-release
@@ -85,7 +88,10 @@ scripts/integration-tests.sh
 scripts/server_up.sh
 
 #spawn N number of clients
-scripts/spawn_clients.sh 5 #this spawns 5 clients, each runs a login+echo cycle
+scripts/spawn_clients.sh 10 #this spawns 10 clients, each runs a login+echo cycle
+
+#(Optional) inspect server logs
+docker compose logs -f server
 
 #stop services
 scripts/server_down.sh

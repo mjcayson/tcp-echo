@@ -10,7 +10,7 @@ namespace tcp_echo::proto
     std::vector<uint8_t> out;
     out.resize(HEADER_SIZE);
     out.insert(out.end(), body.begin(), body.end());
-    byte_order::store_be16(out.data() + 0, static_cast<uint16_t>(out.size()));
+    byte_order::store_be16(out.data(), static_cast<uint16_t>(out.size()));
     out[2] = static_cast<uint8_t>(type);
     out[3] = seq;
     return out;

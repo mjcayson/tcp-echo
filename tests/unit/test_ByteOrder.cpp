@@ -4,7 +4,8 @@
 
 using namespace tcp_echo::byte_order;
 
-TEST(ByteOrder, Be16RoundTrip) {
+TEST(ByteOrder, Be16RoundTrip)
+{
   unsigned char buf[2];
   store_be16(buf, 0xABCD);
   EXPECT_EQ(buf[0], 0xAB);

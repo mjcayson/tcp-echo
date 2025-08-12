@@ -23,7 +23,7 @@ static std::vector<uint8_t> recv_frame(tcp_echo::net::Socket& sock)
   frame[1] = header[1];
   frame[2] = header[2];
   frame[3] = header[3];
-  // read rest
+  // read remaining data
   if (size > proto::HEADER_SIZE)
   {
     sock.RecvExact(frame.data() + proto::HEADER_SIZE, size - proto::HEADER_SIZE);

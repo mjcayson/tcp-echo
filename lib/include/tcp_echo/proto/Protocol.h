@@ -4,6 +4,7 @@
 namespace tcp_echo::proto
 {
   constexpr std::size_t HEADER_SIZE = 4; // size(2) + type(1) + seq(1)
+  constexpr std::size_t MSG_SIZE_FIELD_SIZE = 2;
 
   enum class MsgType : uint8_t
   {
@@ -15,7 +16,7 @@ namespace tcp_echo::proto
 
   struct Header
   {
-    uint16_t size; // includes header (big-endian on wire)
+    uint16_t size; // includes header (big-endian)
     uint8_t  type;
     uint8_t  seq;
   };

@@ -32,9 +32,9 @@ namespace tcp_echo::net
     int fd() const { return m_sock.fd(); }
     State GetState() const { return m_state; }
 
-    // Called when fd is readable. Returns false if connection should be closed.
+    //called when fd is readable. Returns false if connection should be closed
     bool OnRead();
-    //Tick hook for idle timeout. Will close() socket on idle to break the loop.
+    //tick hook for idle timeout. Will close() socket on idle to break the loop.
     void OnTick(int idleTimeoutMs);
 
   private:

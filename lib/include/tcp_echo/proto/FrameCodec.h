@@ -5,7 +5,7 @@
 
 namespace tcp_echo::proto
 {
-    // Encodes [Header | Body] with BE16 size in Header
+    // Encodes [Header | Body] with Big-Endian16 size in Header
     std::vector<uint8_t> MakeFrame(MsgType type, uint8_t seq, const std::vector<uint8_t>& body);
 
     // Extract full frame from a growing buffer if available.

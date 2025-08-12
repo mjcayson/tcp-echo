@@ -2,14 +2,8 @@ file(GLOB_RECURSE UNIT_TESTS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/test_*.cpp
 )
 
-#@TODO: Use the GLOB list later once all tests are ready 
 add_executable(unit_tests
-  test_ProtoCodec.cpp
-#   test_messages.cpp
-  test_Cipher.cpp
-  test_ByteOrder.cpp
-#   test_config.cpp
-#   test_signal.cpp
+  ${UNIT_TESTS_SRC}
 )
 
 target_link_libraries(unit_tests
