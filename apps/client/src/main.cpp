@@ -42,16 +42,16 @@ int main(int argc, char* argv[])
   LOG_INFO("client", "connected to " + cfg.host + ":" + std::to_string(cfg.port));
 
   // 1) Login (seq = 0)
-  proto::LoginRequest lreq{};
-  lreq.username = cfg.user;
-  lreq.password = cfg.pass;
-  lreq.seq = 0;
-  auto lbytes = proto::Serialize(lreq);
+  proto::LoginRequest loginReq{};
+  loginReq.username = cfg.user;
+  loginReq.password = cfg.pass;
+  loginReq.seq = 0;
+  auto lbytes = proto::Serialize(loginReq);
   sock.SendAll(lbytes.data(), lbytes.size());
 
-  auto lresp_frame = recv_frame(sock);
-  proto::LoginResponse lresp{};
-  if (not proto::Deserialize(lresp_frame, lresp) || lresp.status != 1)
+  auto loginRespFrame = recv_frame(sock);
+  proto::LoginResponse loginResp{};
+  if (not proto::Deserialize(loginRespFrame, loginResp) || loginResp.status != 1)
   {
     LOG_ERROR("client", "login failed");
     return 1;
@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
   const uint8_t seq = 1;
   // Encrypt message per spec (same as server decrypt)
   std::vector<uint8_t> plain(cfg.message.begin(), cfg.message.end());
-  const uint8_t u_sum = cipher::sum_u8(cfg.user);
-  const uint8_t p_sum = cipher::sum_u8(cfg.pass);
-  const uint32_t init = cipher::MakeInitialKey(seq, u_sum, p_sum);
+  const uint8_t userSum = cipher::sum_u8(cfg.user);
+  const uint8_t passSum = cipher::sum_u8(cfg.pass);
+  const uint32_t init = cipher::MakeInitialKey(seq, userSum, passSum);
   auto kstream = cipher::Keystream(init, plain.size());
   std::vector<uint8_t> ciphered = plain;
   cipher::InplaceXOR(ciphered, kstream);
